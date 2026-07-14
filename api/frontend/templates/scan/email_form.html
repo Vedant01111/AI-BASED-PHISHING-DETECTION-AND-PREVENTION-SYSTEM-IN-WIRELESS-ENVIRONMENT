@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block title %}Scan an email — iSecure{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <h1 class="text-2xl font-bold mb-2">Scan an email</h1>
+  <p class="text-sm text-slate-500 mb-6">
+    Paste the full email source (use <strong>Show original</strong> in Gmail or <strong>View source</strong>
+    in Outlook). Headers let us check SPF / DKIM / DMARC; body-only paste still works but loses
+    the sender-authentication signal.
+  </p>
+
+  <form method="post" class="bg-white rounded-xl border border-slate-200 p-6 space-y-5">
+    {% csrf_token %}
+    <div>
+      <label class="block text-sm font-medium mb-1" for="{{ form.raw_email.id_for_label }}">Email source</label>
+      {{ form.raw_email }}
+      {% if form.raw_email.errors %}<p class="mt-1 text-xs text-red-600">{{ form.raw_email.errors|join:", " }}</p>{% endif %}
+    </div>
+    <button type="submit" class="rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">Scan email</button>
+  </form>
+
+  {% if result %}
+    <div class="mt-8 bg-white rounded-xl border border-slate-200 p-6">
+      <div class="flex items-center justify-between flex-wrap gap-3 mb-6">
+        <div>
+          <h2 class="text-lg font-semibold">Result</h2>
+          {% if result.sender %}<p class="text-xs text-slate-500">From: <span class="font-mono">{{ result.sender }}</span></p>{% endif %}
+          {% if result.subject %}<p class="text-xs text-slate-500">Subject: {{ result.subject }}</p>{% endif %}
+        </div>
+        {% if result.verdict == 'phishing' %}
+          <span class="rounded-full bg-red-100 text-red-800 text-sm font-semibold px-3 py-1">🚨 Phishing</span>
+        {% elif result.verdict == 'suspicious' %}
+          <span class="rounded-full bg-amber-100 text-amber-800 text-sm font-semibold px-3 py-1">⚠️ Suspicious</span>
+        {% else %}
+          <span class="rounded-full bg-green-100 text-green-800 text-sm font-semibold px-3 py-1">✅ Clean</span>
+        {% endif %}
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div class="rounded-lg p-4 bg-slate-50 border border-slate-200">
+          <p class="text-xs uppercase tracking-wide text-slate-500 mb-1">Body classifier</p>
+          <p class="text-3xl font-bold {% if result.body_phish_score >= 70 %}text-red-600{% elif result.body_phish_score >= 40 %}text-amber-600{% else %}text-green-600{% endif %}">
+            {{ result.body_phish_score }}%
+          </p>
+          <p class="text-xs text-slate-500 mt-1">P(phishing) from TF-IDF + LogReg trained on the bundled corpus.</p>
+        </div>
+
+        <div class="rounded-lg p-4 bg-slate-50 border border-slate-200">
+          <p class="text-xs uppercase tracking-wide text-slate-500 mb-1">Sender authentication</p>
+          {% if result.header_status == 'pass' %}
+            <p class="text-2xl font-bold text-green-600">PASS</p>
+          {% elif result.header_status == 'fail' %}
+            <p class="text-2xl font-bold text-red-600">FAIL</p>
+          {% else %}
+            <p class="text-2xl font-bold text-slate-500">UNKNOWN</p>
+          {% endif %}
+          <ul class="text-xs text-slate-600 mt-2 space-y-0.5">
+            <li>SPF: {% if result.header_spf is True %}<span class="text-green-600">pass</span>{% elif result.header_spf is False %}<span class="text-red-600">fail</span>{% else %}<span class="text-slate-400">not reported</span>{% endif %}</li>
+            <li>DKIM: {% if result.header_dkim is True %}<span class="text-green-600">pass</span>{% elif result.header_dkim is False %}<span class="text-red-600">fail</span>{% else %}<span class="text-slate-400">not reported</span>{% endif %}</li>
+            <li>DMARC: {% if result.header_dmarc is True %}<span class="text-green-600">pass</span>{% elif result.header_dmarc is False %}<span class="text-red-600">fail</span>{% else %}<span class="text-slate-400">not reported</span>{% endif %}</li>
+          </ul>
+        </div>
+      </div>
+
+      {% if result.reasons %}
+        <div class="mb-6">
+          <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500 mb-2">Why</h3>
+          <ul class="list-disc pl-5 text-sm text-slate-700 space-y-1">
+            {% for reason in result.reasons %}<li>{{ reason }}</li>{% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+
+      {% if result.domain_reputation %}
+        <details class="text-sm">
+          <summary class="cursor-pointer font-semibold text-slate-700">Sender domain reputation (MailCheck)</summary>
+          <dl class="grid grid-cols-2 gap-x-4 gap-y-1 mt-3 text-xs">
+            <dt class="text-slate-500">Domain</dt><dd class="font-mono">{{ result.domain_reputation.domain }}</dd>
+            <dt class="text-slate-500">Valid</dt><dd>{{ result.domain_reputation.valid }}</dd>
+            <dt class="text-slate-500">Disposable</dt><dd>{{ result.domain_reputation.disposable }}</dd>
+            <dt class="text-slate-500">Blocked</dt><dd>{{ result.domain_reputation.block }}</dd>
+            <dt class="text-slate-500">Forwarder</dt><dd>{{ result.domain_reputation.email_forwarder }}</dd>
+            <dt class="text-slate-500">Risk score</dt><dd>{{ result.domain_reputation.risk }}</dd>
+            <dt class="text-slate-500">MX host</dt><dd class="font-mono break-all">{{ result.domain_reputation.mx_host }}</dd>
+          </dl>
+        </details>
+      {% endif %}
+
+      {% if not result.looks_like_full_message %}
+        <p class="mt-4 text-xs text-slate-500 italic">
+          Tip: paste the full email source (with headers) for the SPF / DKIM / DMARC check.
+        </p>
+      {% endif %}
+
+      <div class="mt-6">
+        <a href="{% url 'reports-email' %}" class="text-sm text-brand-600 hover:text-brand-700">View all email reports →</a>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

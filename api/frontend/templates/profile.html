@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}My profile — iSecure{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <div class="flex items-center justify-between mb-8">
+    <h1 class="text-2xl font-bold">My profile</h1>
+    <a href="{% url 'profile-password' %}" class="rounded-md border border-brand-200 bg-white px-4 py-2 text-sm font-semibold text-brand-700 hover:bg-brand-50">
+      Change password
+    </a>
+  </div>
+
+  <div class="bg-white rounded-xl border border-slate-200 p-6 mb-6 flex items-center gap-5">
+    <div class="h-16 w-16 rounded-full bg-brand-600 text-white flex items-center justify-center text-2xl font-bold">
+      {{ user.get_initial_profile|default:"U" }}
+    </div>
+    <div>
+      <h2 class="text-lg font-semibold">{{ user.full_name|default:user.email }}</h2>
+      <p class="text-sm text-slate-500">{{ user.email }}</p>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-xl border border-slate-200 p-6">
+    <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500 mb-4">Account details</h3>
+    <dl class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-sm">
+      <div>
+        <dt class="text-slate-500">First name</dt>
+        <dd class="font-medium">{{ user.first_name|default:"—" }}</dd>
+      </div>
+      <div>
+        <dt class="text-slate-500">Last name</dt>
+        <dd class="font-medium">{{ user.last_name|default:"—" }}</dd>
+      </div>
+      <div>
+        <dt class="text-slate-500">Email</dt>
+        <dd class="font-medium">{{ user.email }}</dd>
+      </div>
+    </dl>
+  </div>
+</div>
+{% endblock %}

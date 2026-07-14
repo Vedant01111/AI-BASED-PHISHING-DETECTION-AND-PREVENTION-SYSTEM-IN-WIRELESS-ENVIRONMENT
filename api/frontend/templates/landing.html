@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% block title %}iSecure — Real-time Phishing Detection{% endblock %}
+
+{% block content %}
+<section id="home" class="bg-gradient-to-b from-brand-50 to-white">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+    <p class="text-sm font-semibold uppercase tracking-wider text-brand-600 mb-3">Welcome to</p>
+    <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-900 mb-4">
+      iSecure
+    </h1>
+    <p class="text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto mb-10">
+      Real-time phishing detection for URLs, emails, and Gmail inboxes — powered by machine learning.
+    </p>
+
+    <div class="flex flex-wrap justify-center gap-3">
+      {% if user.is_authenticated %}
+        <a href="{% url 'scan-web' %}" class="rounded-md bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-700">
+          Validate URL
+        </a>
+        <a href="{% url 'scan-email' %}" class="rounded-md bg-white px-5 py-2.5 text-sm font-semibold text-brand-700 border border-brand-200 hover:bg-brand-50">
+          Validate Email
+        </a>
+      {% else %}
+        <a href="{% url 'sign-up' %}" class="rounded-md bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-700">
+          Get started
+        </a>
+        <a href="{% url 'sign-in' %}" class="rounded-md bg-white px-5 py-2.5 text-sm font-semibold text-brand-700 border border-brand-200 hover:bg-brand-50">
+          Log in
+        </a>
+      {% endif %}
+    </div>
+
+    {% if user.is_authenticated %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-16 max-w-2xl mx-auto">
+      <a href="{% url 'reports-web' %}" class="bg-white rounded-xl border border-slate-200 p-6 text-center hover:border-brand-400 hover:shadow transition">
+        <div class="text-2xl mb-2">🔗</div>
+        <h3 class="font-semibold">Web Reports</h3>
+        <p class="text-xs text-slate-500 mt-1">URL scan history</p>
+      </a>
+      <a href="{% url 'reports-email' %}" class="bg-white rounded-xl border border-slate-200 p-6 text-center hover:border-brand-400 hover:shadow transition">
+        <div class="text-2xl mb-2">✉️</div>
+        <h3 class="font-semibold">Email Reports</h3>
+        <p class="text-xs text-slate-500 mt-1">Email scan history</p>
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<section id="about" class="py-20">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h2 class="text-3xl font-bold text-center mb-8">About the project</h2>
+    <div class="prose prose-slate max-w-none text-slate-700 space-y-4 text-justify">
+      <p>
+        Phishing detection using machine learning is a critical part of modern cybersecurity. iSecure
+        analyses URLs, email headers, and email bodies to classify them as legitimate or malicious in
+        real time, helping users avoid credential theft and financial fraud.
+      </p>
+      <p>
+        The URL classifier extracts 30 lexical, network, and content features (domain age, HTTPS usage,
+        anchor ratios, WHOIS data, traffic rank, and more) and feeds them to a pre-trained gradient
+        boosting model. The email pipeline pairs SPF/DKIM/DMARC heuristics with a per-user TF-IDF +
+        Random Forest classifier trained on the user's own Gmail history.
+      </p>
+      <p>
+        Models are continuously improvable: the Gmail trainer rebuilds your personal classifier from
+        the latest 200 messages plus a curated phishing corpus, so detection adapts to your context.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section id="features" class="bg-slate-50 py-20">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h2 class="text-3xl font-bold text-center mb-12">Project features</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="bg-white rounded-xl border border-slate-200 p-6 text-center">
+        <div class="text-3xl mb-3">⚡</div>
+        <h3 class="font-semibold mb-1">Real-time detection</h3>
+        <p class="text-sm text-slate-500">ML-powered classification in seconds.</p>
+      </div>
+      <div class="bg-white rounded-xl border border-slate-200 p-6 text-center">
+        <div class="text-3xl mb-3">📊</div>
+        <h3 class="font-semibold mb-1">URL scan logs</h3>
+        <p class="text-sm text-slate-500">Every scan is recorded for review.</p>
+      </div>
+      <div class="bg-white rounded-xl border border-slate-200 p-6 text-center">
+        <div class="text-3xl mb-3">🎯</div>
+        <h3 class="font-semibold mb-1">Optimised results</h3>
+        <p class="text-sm text-slate-500">Per-user models adapt to your inbox.</p>
+      </div>
+      <div class="bg-white rounded-xl border border-slate-200 p-6 text-center">
+        <div class="text-3xl mb-3">📚</div>
+        <h3 class="font-semibold mb-1">Curated dataset</h3>
+        <p class="text-sm text-slate-500">Bundled phishing corpus + your data.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="technology" class="py-20">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h2 class="text-3xl font-bold text-center mb-12">Technologies used</h2>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-6">
+      <div class="bg-white rounded-xl border border-slate-200 p-6 text-center">
+        <h3 class="font-semibold">Django</h3>
+        <p class="text-xs text-slate-500 mt-1">Python backend framework</p>
+      </div>
+      <div class="bg-white rounded-xl border border-slate-200 p-6 text-center">
+        <h3 class="font-semibold">Tailwind CSS</h3>
+        <p class="text-xs text-slate-500 mt-1">Utility-first styling</p>
+      </div>
+      <div class="bg-white rounded-xl border border-slate-200 p-6 text-center">
+        <h3 class="font-semibold">Alpine.js</h3>
+        <p class="text-xs text-slate-500 mt-1">Lightweight interactivity</p>
+      </div>
+      <div class="bg-white rounded-xl border border-slate-200 p-6 text-center">
+        <h3 class="font-semibold">scikit-learn</h3>
+        <p class="text-xs text-slate-500 mt-1">ML classifiers</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

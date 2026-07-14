@@ -1,0 +1,45 @@
+from django.db import models
+import uuid
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
+class WebReport(models.Model):
+    id  = models.UUIDField(primary_key = True, default = uuid.uuid4, editable = False, unique=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    url = models.URLField()
+    phishing_score = models.FloatField()
+    non_phishing_score = models.FloatField()
+    is_ip_address = models.IntegerField(default=0)
+    long_url = models.IntegerField(default=0)
+    shor_turl = models.IntegerField(default=0)
+    symbol = models.IntegerField(default=0)
+    redirect = models.IntegerField(default=0)
+    prefix_suffix = models.IntegerField(default=0)
+    subdomains = models.IntegerField(default=0)
+    https = models.IntegerField(default=0)
+    domainreglen = models.IntegerField(default=0)
+    favicon = models.IntegerField(default=0)
+    non_std_port = models.IntegerField(default=0)
+    httpsdomainurl = models.IntegerField(default=0)
+    requesturl = models.IntegerField(default=0)
+    anchorurl = models.IntegerField(default=0)
+    linksinscripttags = models.IntegerField(default=0)
+    serverformhandler = models.IntegerField(default=0)
+    infoemail = models.IntegerField(default=0)
+    abnormalurl = models.IntegerField(default=0)
+    websiteforwarding = models.IntegerField(default=0)
+    statusbarcust = models.IntegerField(default=0)
+    disablerightclick = models.IntegerField(default=0)
+    usingpopupwindow = models.IntegerField(default=0)
+    iframeredirection = models.IntegerField(default=0)
+    ageofdomain = models.IntegerField(default=0)
+    dnsrecording = models.IntegerField(default=0)
+    websitetraffic = models.IntegerField(default=0)
+    pagerank = models.IntegerField(default=0)
+    googleindex = models.IntegerField(default=0)
+    linkspointingtopage = models.IntegerField(default=0)
+    statsreport = models.IntegerField(default=0)
+    stats_report = models.IntegerField(default=0)    
+
+    def __str__(self):
+        return f"{self.user}"

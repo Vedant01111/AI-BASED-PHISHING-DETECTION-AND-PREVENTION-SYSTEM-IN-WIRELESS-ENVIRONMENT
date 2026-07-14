@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}Email reports — iSecure{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold">Email scan history</h1>
+    <a href="{% url 'scan-email' %}" class="rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">New scan</a>
+  </div>
+
+  <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
+          <tr>
+            <th class="text-left px-4 py-3">When</th>
+            <th class="text-left px-4 py-3">Sender</th>
+            <th class="text-left px-4 py-3">Subject</th>
+            <th class="text-right px-4 py-3">Body %</th>
+            <th class="text-center px-4 py-3">Auth</th>
+            <th class="text-center px-4 py-3">Verdict</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for r in reports %}
+            <tr class="hover:bg-slate-50 align-top">
+              <td class="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{{ r.created_at|date:"Y-m-d H:i" }}</td>
+              <td class="px-4 py-3 max-w-xs truncate" title="{{ r.sender }}">{{ r.sender|default:"—" }}</td>
+              <td class="px-4 py-3 max-w-md truncate" title="{{ r.subject }}">{{ r.subject|default:"—" }}</td>
+              <td class="px-4 py-3 text-right font-mono {% if r.body_phish_score >= 70 %}text-red-600{% elif r.body_phish_score >= 40 %}text-amber-600{% else %}text-green-600{% endif %}">{{ r.body_phish_score }}</td>
+              <td class="px-4 py-3 text-center">
+                {% if r.header_status == 'pass' %}
+                  <span class="text-xs font-medium text-green-700">PASS</span>
+                {% elif r.header_status == 'fail' %}
+                  <span class="text-xs font-medium text-red-700">FAIL</span>
+                {% else %}
+                  <span class="text-xs text-slate-400">—</span>
+                {% endif %}
+              </td>
+              <td class="px-4 py-3 text-center">
+                {% if r.final_verdict == 'phishing' %}
+                  <span class="rounded-full bg-red-100 text-red-800 text-xs font-medium px-2 py-0.5">Phishing</span>
+                {% elif r.final_verdict == 'suspicious' %}
+                  <span class="rounded-full bg-amber-100 text-amber-800 text-xs font-medium px-2 py-0.5">Suspicious</span>
+                {% else %}
+                  <span class="rounded-full bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5">Clean</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="6" class="px-4 py-12 text-center text-slate-400">No scans yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {% include "reports/_pagination.html" %}
+</div>
+{% endblock %}

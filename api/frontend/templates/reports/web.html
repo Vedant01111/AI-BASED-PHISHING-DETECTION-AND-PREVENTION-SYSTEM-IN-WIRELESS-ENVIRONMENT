@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Web reports — iSecure{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold">Web scan history</h1>
+    <a href="{% url 'scan-web' %}" class="rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">New scan</a>
+  </div>
+
+  <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
+          <tr>
+            <th class="text-left px-4 py-3">URL</th>
+            <th class="text-right px-4 py-3">Phishing %</th>
+            <th class="text-right px-4 py-3">Legit %</th>
+            <th class="text-center px-4 py-3">Verdict</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for r in reports %}
+            <tr class="hover:bg-slate-50">
+              <td class="px-4 py-3 max-w-md truncate" title="{{ r.url }}">{{ r.url }}</td>
+              <td class="px-4 py-3 text-right font-mono text-red-600">{{ r.phishing_score }}</td>
+              <td class="px-4 py-3 text-right font-mono text-green-600">{{ r.non_phishing_score }}</td>
+              <td class="px-4 py-3 text-center">
+                {% if r.phishing_score > r.non_phishing_score %}
+                  <span class="rounded-full bg-red-100 text-red-800 text-xs font-medium px-2 py-0.5">Phishing</span>
+                {% else %}
+                  <span class="rounded-full bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5">Legit</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="4" class="px-4 py-12 text-center text-slate-400">No scans yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {% include "reports/_pagination.html" %}
+</div>
+{% endblock %}

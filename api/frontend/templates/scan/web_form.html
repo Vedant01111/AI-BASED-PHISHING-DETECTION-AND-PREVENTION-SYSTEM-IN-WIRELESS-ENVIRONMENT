@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Scan a URL — iSecure{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <h1 class="text-2xl font-bold mb-2">Scan a URL</h1>
+  <p class="text-sm text-slate-500 mb-8">Paste a URL and we'll extract 30 features and score it with our gradient-boosting classifier.</p>
+
+  <form method="post" class="bg-white rounded-xl border border-slate-200 p-6 space-y-5 mb-8">
+    {% csrf_token %}
+    <div>
+      <label class="block text-sm font-medium mb-1" for="{{ form.url.id_for_label }}">URL</label>
+      {{ form.url }}
+      {% if form.url.errors %}<p class="mt-1 text-xs text-red-600">{{ form.url.errors|join:", " }}</p>{% endif %}
+    </div>
+    <button type="submit" class="rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">Scan URL</button>
+  </form>
+
+  {% if report %}
+    <div class="bg-white rounded-xl border border-slate-200 p-6">
+      <div class="flex items-center justify-between flex-wrap gap-3 mb-5">
+        <div>
+          <h2 class="text-lg font-semibold">Result</h2>
+          <p class="text-xs text-slate-500 break-all">{{ report.url }}</p>
+        </div>
+        {% if cached %}
+          <span class="rounded-full bg-slate-100 text-slate-700 text-xs font-medium px-2 py-0.5">cached</span>
+        {% endif %}
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 mb-6">
+        <div class="rounded-lg p-4 text-center {% if report.phishing_score > report.non_phishing_score %}bg-red-50 border border-red-200{% else %}bg-slate-50 border border-slate-200{% endif %}">
+          <p class="text-xs uppercase tracking-wide text-slate-500">Phishing</p>
+          <p class="text-3xl font-bold {% if report.phishing_score > report.non_phishing_score %}text-red-600{% else %}text-slate-700{% endif %}">{{ report.phishing_score }}%</p>
+        </div>
+        <div class="rounded-lg p-4 text-center {% if report.non_phishing_score >= report.phishing_score %}bg-green-50 border border-green-200{% else %}bg-slate-50 border border-slate-200{% endif %}">
+          <p class="text-xs uppercase tracking-wide text-slate-500">Legitimate</p>
+          <p class="text-3xl font-bold {% if report.non_phishing_score >= report.phishing_score %}text-green-600{% else %}text-slate-700{% endif %}">{{ report.non_phishing_score }}%</p>
+        </div>
+      </div>
+
+      <details class="text-sm">
+        <summary class="cursor-pointer font-semibold text-slate-700">Feature breakdown (30 signals)</summary>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-4 text-xs">
+          {% include "scan/_web_features.html" %}
+        </div>
+      </details>
+
+      <div class="mt-6">
+        <a href="{% url 'reports-web' %}" class="text-sm text-brand-600 hover:text-brand-700">View all URL reports →</a>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

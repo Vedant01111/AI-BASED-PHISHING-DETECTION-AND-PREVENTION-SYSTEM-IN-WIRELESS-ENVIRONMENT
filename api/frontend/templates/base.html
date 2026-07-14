@@ -1,0 +1,118 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}iSecure — Phishing Detection{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                50:  '#eef2ff',
+                100: '#e0e7ff',
+                500: '#6366f1',
+                600: '#4f46e5',
+                700: '#4338ca',
+              },
+            },
+          },
+        },
+      }
+    </script>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="h-full text-slate-900 antialiased">
+
+<nav x-data="{ open: false }" class="bg-white border-b border-slate-200 sticky top-0 z-30">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex h-16 items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="{% url 'landing' %}" class="text-xl font-bold text-brand-600 tracking-tight">iSecure</a>
+        <span class="hidden sm:inline text-xs text-slate-400">Phishing Detection</span>
+      </div>
+
+      <div class="hidden md:flex items-center gap-1">
+        <a href="{% url 'landing' %}#about" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-brand-600">About</a>
+        <a href="{% url 'landing' %}#features" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-brand-600">Features</a>
+        <a href="{% url 'landing' %}#technology" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-brand-600">Technologies</a>
+        {% if user.is_authenticated %}
+          <a href="{% url 'scan-web' %}" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-brand-600">Scan URL</a>
+          <a href="{% url 'reports-web' %}" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-brand-600">Reports</a>
+        {% endif %}
+      </div>
+
+      <div class="flex items-center gap-2">
+        {% if user.is_authenticated %}
+          <div x-data="{ menu: false }" class="relative">
+            <button @click="menu = !menu" class="flex items-center gap-2 rounded-full bg-brand-100 px-3 py-1.5 text-sm font-semibold text-brand-700 hover:bg-brand-50">
+              <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-brand-600 text-white text-xs">{{ user.get_initial_profile|default:"U" }}</span>
+              <span class="hidden sm:inline">{{ user.first_name|default:user.email }}</span>
+            </button>
+            <div x-show="menu" x-transition @click.outside="menu = false" x-cloak class="absolute right-0 mt-2 w-56 rounded-md border border-slate-200 bg-white shadow-lg">
+              <div class="px-4 py-3 border-b border-slate-100">
+                <p class="text-sm font-medium">{{ user.full_name|default:user.email }}</p>
+                <p class="text-xs text-slate-500 truncate">{{ user.email }}</p>
+              </div>
+              <a href="{% url 'profile' %}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">My profile</a>
+              <a href="{% url 'reports-web' %}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">My reports</a>
+              <form method="post" action="{% url 'sign-out' %}">
+                {% csrf_token %}
+                <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-slate-50">Log out</button>
+              </form>
+            </div>
+          </div>
+        {% else %}
+          <a href="{% url 'sign-in' %}" class="px-3 py-2 text-sm font-medium text-slate-700 hover:text-brand-600">Sign in</a>
+          <a href="{% url 'sign-up' %}" class="rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">Sign up</a>
+        {% endif %}
+        <button @click="open = !open" class="md:hidden inline-flex items-center justify-center p-2 rounded-md text-slate-500 hover:bg-slate-100">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div x-show="open" x-cloak class="md:hidden pb-4 space-y-1">
+      <a href="{% url 'landing' %}#about" class="block px-3 py-2 rounded-md text-base font-medium text-slate-600 hover:bg-slate-100">About</a>
+      <a href="{% url 'landing' %}#features" class="block px-3 py-2 rounded-md text-base font-medium text-slate-600 hover:bg-slate-100">Features</a>
+      <a href="{% url 'landing' %}#technology" class="block px-3 py-2 rounded-md text-base font-medium text-slate-600 hover:bg-slate-100">Technologies</a>
+      {% if user.is_authenticated %}
+        <a href="{% url 'scan-web' %}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-600 hover:bg-slate-100">Scan URL</a>
+        <a href="{% url 'reports-web' %}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-600 hover:bg-slate-100">Reports</a>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+
+{% if messages %}
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 space-y-2">
+    {% for message in messages %}
+      <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 6000)"
+           class="rounded-md px-4 py-3 text-sm flex items-start justify-between gap-4
+                  {% if message.tags == 'error' %}bg-red-50 text-red-800 border border-red-200
+                  {% elif message.tags == 'success' %}bg-green-50 text-green-800 border border-green-200
+                  {% else %}bg-slate-50 text-slate-800 border border-slate-200{% endif %}">
+        <span>{{ message }}</span>
+        <button type="button" @click="show = false" class="text-slate-400 hover:text-slate-700">&times;</button>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<main class="min-h-[calc(100vh-4rem)]">
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="border-t border-slate-200 bg-white mt-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-sm text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2">
+    <p>Built with care by iSecure.</p>
+    <p class="text-xs">Django · Tailwind · Alpine.js</p>
+  </div>
+</footer>
+
+</body>
+</html>
