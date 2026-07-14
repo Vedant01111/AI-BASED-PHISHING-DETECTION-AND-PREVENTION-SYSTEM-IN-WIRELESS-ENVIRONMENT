@@ -1,0 +1,65 @@
+
+
+tech stack
+
+1. backend (Django python based framework)
+2. frontend (HTML5, TailwindCSS, alpine.js)
+3. database => sqlite
+4. ML engine => email & web url phishing
+
+
+Email Phishing  => Logistic Regression ML model
+for email data training we use those parameters:
+    auth_results = msg.get_all('ARC-Authentication-Results', []) if 'ARC-Authentication-Results' in msg.keys() else msg.get_all('Authentication-Results', '')
+    return_path = msg.get('Return-Path', '')
+    originating_server = msg.get('Received', '')
+    content_type = msg.get_content_type()
+    feedback_id = msg.get('Feedback-ID', '')
+    from_address = msg.get('From', '')
+    to_address = msg.get('To', '')
+    reply_to = msg.get('Reply-To', '')
+    subject = msg.get('Subject', '')
+    message_id = msg.get('Message-ID', '')
+    date = msg.get('Date', '')
+    SPF Complience
+    DKIM Complience
+    DMARC Complience
+
+    reading Data and classifyes using ML trained model
+
+
+Web Phishing: (https://jiomeetpro.jio.com/conference/call/?user=xyz@gmail.com)  => GradientBoost Classifier ml model
+for website URL data we use those parameters:
+    "url": url,
+    "phishing_score": phishing_score,
+    "non_phishing_score": non_phishing_score,
+    "is_ip_address": data[0], (35.244.162.2:443)
+    "long_url": data[1], (/conference/call)
+    "shor_turl": data[2], (bit.ly/url)
+    "symbol": data[3], (/?user=xyz@gmail.com)
+    "redirect": data[4], (https://jiomeetpro.jio.com => https://tour2tech.com)
+    "prefix_suffix": data[5], 
+    "subdomains": data[6], (jiomeetpro)
+    "https": data[7], (https:true)
+    "domainreglen": data[8], (IN)
+    "favicon": data[9],
+    "non_std_port": data[10], (:8000)
+    "httpsdomainurl": data[11], (https:true)
+    "requesturl": data[12],
+    "anchorurl": data[13],
+    "linksinscripttags": data[14],
+    "serverformhandler": data[15],
+    "infoemail": data[16],
+    "abnormalurl": data[17],
+    "websiteforwarding": data[18],
+    "statusbarcust": data[19],
+    "disablerightclick": data[20],
+    "usingpopupwindow": data[21],
+    "iframeredirection": data[22],
+    "ageofdomain": data[23],
+    "dnsrecording": data[24],
+    "websitetraffic": data[25],
+    "pagerank": data[26],
+    "googleindex": data[27],
+    "linkspointingtopage": data[28],
+    "statsreport": data[29]
